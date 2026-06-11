@@ -16,6 +16,7 @@ export default function Viewer({ image, hotspots }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [tab, setTab] = useState<PosKey | null>(null);
   const [picked, setPicked] = useState<number | null>(null);
+  const [relatedOpen, setRelatedOpen] = useState(false);
   const [tray, setTray] = useState<TrayGroup[]>([]);
   const [copied, setCopied] = useState(false);
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
@@ -235,7 +236,10 @@ export default function Viewer({ image, hotspots }: Props) {
                   {open.words[tab].map((w, i) => (
                     <button
                       key={i}
-                      onClick={() => setPicked(picked === i ? null : i)}
+                      onClick={() => {
+                        setPicked(picked === i ? null : i);
+                        setRelatedOpen(false);
+                      }}
                       className={`rounded-full border px-2 py-0.5 text-[13px] ${
                         picked === i
                           ? "border-neutral-400 bg-neutral-100 font-medium"
@@ -264,19 +268,31 @@ export default function Viewer({ image, hotspots }: Props) {
                   </button>
                   {pickedWord.related.length > 0 && (
                     <div className="mt-2 border-t border-neutral-200 pt-1.5">
-                      <p className="text-[11px] text-neutral-400">more like this — tap to collect:</p>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {pickedWord.related.map((r) => (
-                          <button
-                            key={r}
-                            onClick={() => addToTray(open.label, r)}
-                            disabled={inTray(open.label, r)}
-                            className="rounded-full border border-dashed border-neutral-300 px-2 py-0.5 text-xs text-neutral-600 hover:border-neutral-500 disabled:border-solid disabled:opacity-50"
-                          >
-                            {inTray(open.label, r) ? `${r} ✓` : `+ ${r}`}
-                          </button>
-                        ))}
-                      </div>
+                      <button
+                        onClick={() => setRelatedOpen(!relatedOpen)}
+                        className="flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-800"
+                      >
+                        <span
+                          className={`inline-block transition-transform ${relatedOpen ? "rotate-90" : ""}`}
+                        >
+                          ▸
+                        </span>
+                        {relatedOpen ? "more like this — tap to collect:" : "show more like this"}
+                      </button>
+                      {relatedOpen && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {pickedWord.related.map((r) => (
+                            <button
+                              key={r}
+                              onClick={() => addToTray(open.label, r)}
+                              disabled={inTray(open.label, r)}
+                              className="rounded-full border border-dashed border-neutral-300 px-2 py-0.5 text-xs text-neutral-600 hover:border-neutral-500 disabled:border-solid disabled:opacity-50"
+                            >
+                              {inTray(open.label, r) ? `${r} ✓` : `+ ${r}`}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

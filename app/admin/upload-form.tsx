@@ -51,7 +51,7 @@ export default function UploadForm() {
       if (!res.ok || !data?.id) {
         throw new Error(data?.error ?? `Upload failed (server error ${res.status})`);
       }
-      router.push(`/teacher/${data.id}`);
+      router.push(`/admin/${data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
       setBusy(false);

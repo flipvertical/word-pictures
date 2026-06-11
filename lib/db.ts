@@ -103,6 +103,14 @@ export async function listImages(): Promise<ImageRecord[]> {
   return rs.rows.map(rowToImage);
 }
 
+export async function listPublishedImages(): Promise<ImageRecord[]> {
+  const c = await db();
+  const rs = await c.execute(
+    "SELECT * FROM images WHERE status = 'published' ORDER BY created_at DESC",
+  );
+  return rs.rows.map(rowToImage);
+}
+
 export async function getImage(id: string): Promise<ImageRecord | null> {
   const c = await db();
   const rs = await c.execute({ sql: "SELECT * FROM images WHERE id = ?", args: [id] });

@@ -35,8 +35,14 @@ A live "ask about anything you click" mode is a possible v2, not v1.
   (`The ship: galleon, glides, stately…`) for pasting into the writing surface.
 - **No links out** to Google/thesaurus — glosses and related words are pre-generated
   and reviewed instead.
-- **Related words are collectable too** — shown as dashed "+ word" chips under the
-  gloss; tapping adds straight to the tray (they have no gloss of their own).
+- **Related words are collectable too** — but collapsed behind a "show more like
+  this" expander under the gloss, so a word tap reveals only gloss + Add. The
+  expand step also signals why these chips behave differently (tap-to-collect,
+  dashed, no gloss).
+- **The homepage is the student gallery**: every *published* image appears at the
+  root URL, so publishing doubles as classroom visibility control — students just
+  go to the main URL, no per-image links to distribute. Teacher area lives at
+  `/admin`, reachable by typing the path (deliberately unlinked).
 - **Aspect-ratio strategy:** single-column layout. Image full width, capped at
   ~68vh (tall images letterbox), tray below. Works for wide/square/tall images and
   on small laptops/iPads.

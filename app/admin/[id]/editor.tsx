@@ -264,7 +264,7 @@ export default function Editor({ image, initialHotspots }: Props) {
     run("delete", async () => {
       if (!confirm("Delete this image and all its hotspots?")) return "Cancelled.";
       await api(`/api/teacher/images/${image.id}`, { method: "DELETE" });
-      router.push("/teacher");
+      router.push("/admin");
       return "Deleted.";
     });
 
@@ -280,7 +280,7 @@ export default function Editor({ image, initialHotspots }: Props) {
   return (
     <main className="mx-auto max-w-5xl p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <Link href="/teacher" className="text-sm text-neutral-500 hover:underline">
+        <Link href="/admin" className="text-sm text-neutral-500 hover:underline">
           ← Images
         </Link>
         <input

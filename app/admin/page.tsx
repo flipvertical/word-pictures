@@ -7,7 +7,7 @@ import UploadForm from "./upload-form";
 export const dynamic = "force-dynamic";
 
 export default async function TeacherHome() {
-  if (!(await isTeacher())) redirect("/teacher/login");
+  if (!(await isTeacher())) redirect("/admin/login");
   const images = await listImages();
 
   return (
@@ -34,7 +34,7 @@ export default async function TeacherHome() {
               className="h-16 w-24 rounded-lg object-cover"
             />
             <div className="min-w-0 flex-1">
-              <Link href={`/teacher/${img.id}`} className="font-medium hover:underline">
+              <Link href={`/admin/${img.id}`} className="font-medium hover:underline">
                 {img.title}
               </Link>
               <p className="text-sm text-neutral-500">
@@ -51,7 +51,7 @@ export default async function TeacherHome() {
               </p>
             </div>
             <Link
-              href={`/teacher/${img.id}`}
+              href={`/admin/${img.id}`}
               className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50"
             >
               Edit

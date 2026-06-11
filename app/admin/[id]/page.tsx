@@ -10,7 +10,7 @@ export default async function EditorPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  if (!(await isTeacher())) redirect("/teacher/login");
+  if (!(await isTeacher())) redirect("/admin/login");
   const { id } = await params;
   const image = await getImage(id);
   if (!image) notFound();
