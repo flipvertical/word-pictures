@@ -40,9 +40,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing image dimensions" }, { status: 400 });
   }
 
-  const buf = Buffer.from(await file.arrayBuffer());
-  const filePath = await saveUpload(buf, ext, file.type);
-  const id = crypto.randomUUID();
-  await createImage({ id, title, filePath, mediaType: file.type, width, height });
-  return NextResponse.json({ id });
+  try {
+    const buf = Buffer.from(await file.arrayBuffer());
+    const filePath = await saveUpload(buf, ext, file.type);
+    const id = crypto.randomUUID();
+    await createImage({ id, title, filePath, mediaType: file.type, width, height });
+    return NextResponse.json({ id });
+  } catch (err) {
+    console.error("upload failed", err);
+    const message = err instanceof Error ? err.message : "Upload failed";
+    return NextResponse.json({ error: `Storage error: ${message}` }, { status: 500 });
+  }
 }
