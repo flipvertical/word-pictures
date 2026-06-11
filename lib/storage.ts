@@ -3,11 +3,15 @@ import path from "node:path";
 import { put, del } from "@vercel/blob";
 
 // Two drivers, selected by environment:
-// - Vercel Blob when BLOB_READ_WRITE_TOKEN is set (production) — filePath is an absolute URL
+// - Vercel Blob in production — filePath is an absolute URL. The SDK authenticates
+//   via BLOB_READ_WRITE_TOKEN (classic / local dev) or the deployment's OIDC
+//   identity + BLOB_STORE_ID (what Vercel injects when a store is connected).
 // - local filesystem under public/uploads otherwise (dev) — filePath is /uploads/<name>
 
 const UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
-const useBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+export const blobConfigured = () =>
+  Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+const useBlob = blobConfigured;
 
 export async function saveUpload(
   buf: Buffer,

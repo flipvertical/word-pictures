@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isTeacher } from "@/lib/auth";
 import { createImage } from "@/lib/db";
-import { saveUpload } from "@/lib/storage";
+import { blobConfigured, saveUpload } from "@/lib/storage";
 
 const EXT_BY_TYPE: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -14,9 +14,9 @@ export async function POST(req: NextRequest) {
   if (!(await isTeacher())) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
-  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
+  if (process.env.VERCEL && !blobConfigured()) {
     return NextResponse.json(
-      { error: "Blob storage isn't connected — in Vercel, open the project's Storage tab, create a Blob store, then redeploy." },
+      { error: "Blob storage isn't connected — in Vercel, open the project's Storage tab, create a Blob store, connect it to this project, then redeploy." },
       { status: 500 },
     );
   }
