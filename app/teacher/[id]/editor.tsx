@@ -220,16 +220,12 @@ export default function Editor({ image, initialHotspots }: Props) {
       return `Done — proposed ${hs.length} hotspots. Review, edit, then save.`;
     });
 
+  const isEmpty = (h: Hotspot) => POS_KEYS.every((p) => h.words[p].length === 0);
+  const emptyCount = hotspots.filter(isEmpty).length;
+
   const analyzeGuided = () =>
     run("guided", async () => {
-      if (hotspots.length === 0) return "Place some hotspots on the image first.";
-      if (
-        !confirm(
-          "The AI will look at each of your hotspots and write its label, box and word lists (your pin positions are kept). Continue?",
-        )
-      ) {
-        return "Cancelled.";
-      }
+      if (emptyCount === 0) return "No empty hotspots — add a dot first.";
       await saveCurrent();
       const data = await api(`/api/teacher/analyze/${image.id}`, {
         method: "POST",
@@ -237,8 +233,7 @@ export default function Editor({ image, initialHotspots }: Props) {
       });
       const hs = data.hotspots as Hotspot[];
       setHotspots(hs);
-      setSelectedId(hs[0]?.id ?? null);
-      return `Done — described ${hs.length} hotspots. Review, edit, then save.`;
+      return `Done — filled ${emptyCount} empty hotspot${emptyCount === 1 ? "" : "s"}. Review, edit, then save.`;
     });
 
   const togglePublish = () =>
@@ -291,11 +286,13 @@ export default function Editor({ image, initialHotspots }: Props) {
         </button>
         <button
           onClick={analyzeGuided}
-          disabled={busy !== null || hotspots.length === 0}
-          title="Keeps your pins; the AI describes what each one points at"
+          disabled={busy !== null || emptyCount === 0}
+          title="The AI looks at each dot that has no words yet and writes its label, box and words. Hotspots that already have words are left alone."
           className="rounded-lg border border-indigo-300 px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-50 disabled:opacity-50"
         >
-          {busy === "guided" ? "Describing…" : "AI: describe my hotspots"}
+          {busy === "guided"
+            ? "Filling…"
+            : `AI: fill empty hotspots${emptyCount > 0 ? ` (${emptyCount})` : ""}`}
         </button>
         <button
           onClick={save}
@@ -360,7 +357,7 @@ export default function Editor({ image, initialHotspots }: Props) {
                     onPointerDown={(e) => onBoxPointerDown(e, corner)}
                     onPointerMove={onBoxPointerMove}
                     onPointerUp={onBoxPointerUp}
-                    className="absolute h-3.5 w-3.5 rounded-full border border-indigo-500 bg-white"
+                    className="absolute h-3.5 w-3.5 rounded-full border-2 border-white bg-indigo-500"
                     style={{
                       left: corner.includes("w") ? "-7px" : undefined,
                       right: corner.includes("e") ? "-7px" : undefined,
@@ -417,7 +414,7 @@ export default function Editor({ image, initialHotspots }: Props) {
           {!selected && (
             <p className="rounded-xl border border-dashed border-neutral-300 p-6 text-sm text-neutral-500">
               {hotspots.length === 0
-                ? "No hotspots yet. Use “AI: propose hotspots”, or place your own dots and then “AI: describe my hotspots”."
+                ? "No hotspots yet. Use “AI: propose hotspots”, or place your own dots and then “AI: fill empty hotspots”."
                 : "Select a dot to edit its words."}
             </p>
           )}

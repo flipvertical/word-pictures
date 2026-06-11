@@ -41,14 +41,19 @@ export async function POST(
     };
     let hotspots;
     if (mode === "guided") {
-      const pins = await getHotspots(id);
-      if (pins.length === 0) {
+      const all = await getHotspots(id);
+      const isEmpty = (h: (typeof all)[number]) =>
+        h.words.nouns.length + h.words.verbs.length + h.words.adjectives.length === 0;
+      const empty = all.filter(isEmpty);
+      if (empty.length === 0) {
         return NextResponse.json(
-          { error: "Add and save some hotspots first, then describe them." },
+          { error: "No empty hotspots to fill — add a dot first." },
           { status: 400 },
         );
       }
-      hotspots = await analyzeGuided(input, pins);
+      const filled = await analyzeGuided(input, empty);
+      const byId = new Map(filled.map((h) => [h.id, h]));
+      hotspots = all.map((h) => byId.get(h.id) ?? h);
     } else {
       hotspots = await analyzeAuto(input);
     }

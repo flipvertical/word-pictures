@@ -51,10 +51,11 @@ Single shared password (`ADMIN_PASSWORD`), no student accounts.
 Two analysis modes:
 - **AI: propose hotspots** — full auto; the model picks 8-12 subjects across the
   whole image and writes everything.
-- **AI: describe my hotspots** — teacher-guided; the teacher places dots first,
-  the model is told each dot's position and describes what it points at. Pin
-  ids/positions/colors are preserved; the model supplies label, box and words.
-  Use this when auto coverage misses what the class should write about.
+- **AI: fill empty hotspots** — teacher-guided; only hotspots with no words yet
+  are sent to the model, which describes what each dot points at. Pin
+  ids/positions/colors are preserved; already-filled hotspots are never touched.
+  Composes both ways: run auto then add dots for what it missed, or skip auto
+  entirely and lay out every dot by hand, then fill them all.
 
 ## AI generation
 
