@@ -26,10 +26,17 @@ npm run dev                  # http://localhost:3000
 Without `ADMIN_PASSWORD` set, the dev password is `icarus`.
 Local data lives in `local.db` (SQLite) and `public/uploads/` — both gitignored.
 
-## Deploying (not done yet)
+## Deployment
 
-Target: Vercel + Turso. Two things must change first:
+Live at https://word-pictures.vercel.app (Vercel + Turso + Vercel Blob).
 
-- Set `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` (local SQLite file won't work on Vercel).
-- Switch image storage from `public/uploads/` to Vercel Blob (`lib/storage.ts`) —
-  local files do not persist on Vercel.
+Production env vars (set in Vercel): `ANTHROPIC_API_KEY`, `ADMIN_PASSWORD`
+(required — no fallback in production), `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`.
+Image storage auto-selects Vercel Blob via the connected store's `BLOB_STORE_ID`
+(OIDC auth; no read-write token needed in production). The Blob store must be
+**Public** access and connected to the project.
+
+Gotchas hit during first deploy, for posterity:
+- Vercel's Framework Preset must be "Next.js" — as "Other" it serves only
+  `public/` and every route 404s while the build still shows "Ready".
+- A **Private** Blob store rejects the app's public uploads.

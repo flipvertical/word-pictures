@@ -68,8 +68,6 @@ Two analysis modes:
 
 ## Deferred / later
 
-- Vercel Blob for image storage (v1 uses local `public/uploads/`, which does NOT
-  persist on Vercel — must switch before deploying).
 - Adverbs/prepositions as a per-lesson teacher toggle.
 - Tray edit mode if × removal proves undiscoverable for students.
 - Other activity types (scrambled sentences, magnetic-poetry matching) — the
