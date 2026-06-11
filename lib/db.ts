@@ -40,6 +40,13 @@ export async function db(): Promise<Client> {
         words_json TEXT NOT NULL DEFAULT '{}',
         sort INTEGER NOT NULL DEFAULT 0
       )`);
+      try {
+        await c.execute(
+          "ALTER TABLE hotspots ADD COLUMN dot_color TEXT NOT NULL DEFAULT 'light'",
+        );
+      } catch {
+        // column already exists
+      }
     })();
   }
   await ready;
@@ -85,6 +92,7 @@ function rowToHotspot(r: any): Hotspot {
     box,
     words,
     sort: Number(r.sort),
+    dotColor: r.dot_color === "dark" ? "dark" : "light",
   };
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -145,8 +153,8 @@ export async function replaceHotspots(imageId: string, hotspots: Hotspot[]): Pro
   await c.execute({ sql: "DELETE FROM hotspots WHERE image_id = ?", args: [imageId] });
   for (const [i, h] of hotspots.entries()) {
     await c.execute({
-      sql: `INSERT INTO hotspots (id, image_id, label, x, y, box_x, box_y, box_w, box_h, words_json, sort)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      sql: `INSERT INTO hotspots (id, image_id, label, x, y, box_x, box_y, box_w, box_h, words_json, sort, dot_color)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         h.id,
         imageId,
@@ -159,6 +167,7 @@ export async function replaceHotspots(imageId: string, hotspots: Hotspot[]): Pro
         h.box?.h ?? null,
         JSON.stringify(h.words),
         i,
+        h.dotColor === "dark" ? "dark" : "light",
       ],
     });
   }

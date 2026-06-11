@@ -23,8 +23,9 @@ A live "ask about anything you click" mode is a possible v2, not v1.
   focal points vary in size.
 - **Card is draggable** (drag the header) as a manual escape hatch.
 - Tapping another hotspot closes the current card; tapping the image background closes it.
-- **Hotspots are always-visible numbered dots** — no hunting; numbers give the
-  teacher classroom language ("look at spot 4").
+- **Hotspots are small unnumbered dots** (revised June 2026: numbers + large pins
+  obscured the subjects). White by default with a dark outline ring; each hotspot
+  has a per-hotspot Light/Dark contrast toggle in the editor for pale image areas.
 - **Stage flow inside the card:** region name → pick word type (Nouns default
   position, Verbs, Adjectives; adverbs/prepositions deferred) → word chips →
   tap a word for a kid-friendly gloss + "words like this" → explicit Add button.
@@ -34,28 +35,40 @@ A live "ask about anything you click" mode is a possible v2, not v1.
   (`The ship: galleon, glides, stately…`) for pasting into the writing surface.
 - **No links out** to Google/thesaurus — glosses and related words are pre-generated
   and reviewed instead.
+- **Related words are collectable too** — shown as dashed "+ word" chips under the
+  gloss; tapping adds straight to the tray (they have no gloss of their own).
 - **Aspect-ratio strategy:** single-column layout. Image full width, capped at
   ~68vh (tall images letterbox), tray below. Works for wide/square/tall images and
   on small laptops/iPads.
 
 ## Teacher flow (v1)
 
-Upload (≤4MB JPEG/PNG/WebP/GIF) → Analyze with AI → review/edit hotspots (drag
-pins, edit labels/words inline) → Save → Publish → share `/i/[slug]` link.
+Upload (≤4MB JPEG/PNG/WebP/GIF) → analyze → review/edit hotspots (drag dots,
+move/resize bounding boxes via corner handles, edit labels/words inline) →
+Save → Publish → share `/i/[slug]` link.
 Single shared password (`ADMIN_PASSWORD`), no student accounts.
+
+Two analysis modes:
+- **AI: propose hotspots** — full auto; the model picks 8-12 subjects across the
+  whole image and writes everything.
+- **AI: describe my hotspots** — teacher-guided; the teacher places dots first,
+  the model is told each dot's position and describes what it points at. Pin
+  ids/positions/colors are preserved; the model supplies label, box and words.
+  Use this when auto coverage misses what the class should write about.
 
 ## AI generation
 
-- `lib/analyze.ts`, model `claude-opus-4-8`, structured output via zod schema.
-- Normalized (0–1) point + bounding box per hotspot; 5–6 words per part of speech;
-  each word has a ≤10-word gloss and 2–3 related words.
+- `lib/analyze.ts`, model `claude-opus-4-8`, structured output via zod schema,
+  streamed (long outputs trip the SDK's non-streaming guard).
+- Normalized (0–1) point + bounding box per hotspot; 5–7 words per part of speech;
+  each word has a ≤10-word gloss and 3–4 related words.
 - Cost is per-image at prep time (a few cents), zero at student time.
+- Model boxes can be imprecise — hence the teacher-side box move/resize handles.
 
 ## Deferred / later
 
 - Vercel Blob for image storage (v1 uses local `public/uploads/`, which does NOT
   persist on Vercel — must switch before deploying).
-- Box editing in the teacher UI (AI boxes are accepted as-is; pins are draggable).
 - Adverbs/prepositions as a per-lesson teacher toggle.
 - Tray edit mode if × removal proves undiscoverable for students.
 - Other activity types (scrambled sentences, magnetic-poetry matching) — the

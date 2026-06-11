@@ -30,6 +30,8 @@ export const BoxSchema = z.object({
 });
 export type Box = z.infer<typeof BoxSchema>;
 
+export type DotColor = "light" | "dark";
+
 export type Hotspot = {
   id: string;
   label: string;
@@ -38,6 +40,7 @@ export type Hotspot = {
   box: Box | null; // normalized bounding box of the subject
   words: Words;
   sort: number;
+  dotColor: DotColor; // dot rendering on the student view, per-hotspot contrast
 };
 
 export type ImageRecord = {

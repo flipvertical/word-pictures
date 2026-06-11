@@ -1,14 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import { isTeacher } from "@/lib/auth";
-import { getImage, replaceHotspots } from "@/lib/db";
+import { getHotspots, getImage, replaceHotspots } from "@/lib/db";
 import { uploadAbsolutePath } from "@/lib/storage";
-import { analyzeImage } from "@/lib/analyze";
+import { analyzeAuto, analyzeGuided } from "@/lib/analyze";
 
 export const maxDuration = 300;
 
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   if (!(await isTeacher())) {
@@ -24,13 +24,34 @@ export async function POST(
   const image = await getImage(id);
   if (!image) return NextResponse.json({ error: "Image not found" }, { status: 404 });
 
+  let mode: "auto" | "guided" = "auto";
+  try {
+    const body = await req.json();
+    if (body?.mode === "guided") mode = "guided";
+  } catch {
+    // no body — default to auto
+  }
+
   try {
     const buf = await readFile(uploadAbsolutePath(image.filePath));
-    const hotspots = await analyzeImage({
+    const input = {
       imageBase64: buf.toString("base64"),
       mediaType: image.mediaType,
       title: image.title,
-    });
+    };
+    let hotspots;
+    if (mode === "guided") {
+      const pins = await getHotspots(id);
+      if (pins.length === 0) {
+        return NextResponse.json(
+          { error: "Add and save some hotspots first, then describe them." },
+          { status: 400 },
+        );
+      }
+      hotspots = await analyzeGuided(input, pins);
+    } else {
+      hotspots = await analyzeAuto(input);
+    }
     await replaceHotspots(id, hotspots);
     return NextResponse.json({ hotspots });
   } catch (err) {

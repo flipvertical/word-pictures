@@ -149,8 +149,8 @@ export default function Viewer({ image, hotspots }: Props) {
     <main className="mx-auto max-w-4xl p-4 sm:p-6">
       <h1 className="text-lg font-medium">{image.title}</h1>
       <p className="mb-3 text-sm text-neutral-500">
-        Tap a numbered spot to get word ideas. Collect words you like, then use them in your
-        writing.
+        Tap a dot on the picture to get word ideas. Collect words you like, then use them in
+        your writing.
       </p>
 
       <div className="text-center">
@@ -162,7 +162,7 @@ export default function Viewer({ image, hotspots }: Props) {
             className="h-auto max-h-[68vh] w-auto max-w-full rounded-xl"
             draggable={false}
           />
-          {hotspots.map((h, i) => (
+          {hotspots.map((h) => (
             <button
               key={h.id}
               onClick={(e) => {
@@ -170,12 +170,16 @@ export default function Viewer({ image, hotspots }: Props) {
                 openHotspot(h);
               }}
               aria-label={h.label}
-              className={`absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-sm font-medium text-white shadow-md transition-transform ${
-                h.id === openId ? "scale-110 bg-indigo-600 ring-2 ring-white" : "bg-neutral-900/75 hover:scale-110"
-              }`}
+              className="absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
               style={{ left: `${h.x * 100}%`, top: `${h.y * 100}%` }}
             >
-              {i + 1}
+              <span
+                className={`block rounded-full transition-all ${
+                  h.dotColor === "dark"
+                    ? "bg-neutral-900/90 ring-1 ring-white/70"
+                    : "bg-white/95 ring-1 ring-black/40"
+                } ${h.id === openId ? "h-5 w-5 ring-2 ring-indigo-500" : "h-4 w-4 hover:h-5 hover:w-5"}`}
+              />
             </button>
           ))}
 
@@ -251,11 +255,6 @@ export default function Viewer({ image, hotspots }: Props) {
               {pickedWord && (
                 <div className="mt-2 rounded-lg bg-neutral-50 p-2">
                   <p className="text-[13px] text-neutral-600">{pickedWord.gloss}</p>
-                  {pickedWord.related.length > 0 && (
-                    <p className="mt-0.5 text-xs text-neutral-400">
-                      like: {pickedWord.related.join(", ")}
-                    </p>
-                  )}
                   <button
                     onClick={() => addToTray(open.label, pickedWord.word)}
                     disabled={inTray(open.label, pickedWord.word)}
@@ -263,6 +262,23 @@ export default function Viewer({ image, hotspots }: Props) {
                   >
                     {inTray(open.label, pickedWord.word) ? "Added ✓" : "+ Add to my words"}
                   </button>
+                  {pickedWord.related.length > 0 && (
+                    <div className="mt-2 border-t border-neutral-200 pt-1.5">
+                      <p className="text-[11px] text-neutral-400">more like this — tap to collect:</p>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {pickedWord.related.map((r) => (
+                          <button
+                            key={r}
+                            onClick={() => addToTray(open.label, r)}
+                            disabled={inTray(open.label, r)}
+                            className="rounded-full border border-dashed border-neutral-300 px-2 py-0.5 text-xs text-neutral-600 hover:border-neutral-500 disabled:border-solid disabled:opacity-50"
+                          >
+                            {inTray(open.label, r) ? `${r} ✓` : `+ ${r}`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

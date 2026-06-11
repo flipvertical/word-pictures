@@ -16,6 +16,7 @@ const SavePayload = z.object({
       box: BoxSchema.nullable(),
       words: WordsSchema,
       sort: z.number(),
+      dotColor: z.enum(["light", "dark"]).default("light"),
     }),
   ),
 });
