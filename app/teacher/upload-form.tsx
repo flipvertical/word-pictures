@@ -42,9 +42,16 @@ export default function UploadForm() {
       fd.set("width", String(width));
       fd.set("height", String(height));
       const res = await fetch("/api/teacher/upload", { method: "POST", body: fd });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Upload failed");
-      const { id } = await res.json();
-      router.push(`/teacher/${id}`);
+      let data: { id?: string; error?: string } | null = null;
+      try {
+        data = await res.json();
+      } catch {
+        // non-JSON crash page from the platform
+      }
+      if (!res.ok || !data?.id) {
+        throw new Error(data?.error ?? `Upload failed (server error ${res.status})`);
+      }
+      router.push(`/teacher/${data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
       setBusy(false);

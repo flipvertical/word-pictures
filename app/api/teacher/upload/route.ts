@@ -14,6 +14,12 @@ export async function POST(req: NextRequest) {
   if (!(await isTeacher())) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
+  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json(
+      { error: "Blob storage isn't connected — in Vercel, open the project's Storage tab, create a Blob store, then redeploy." },
+      { status: 500 },
+    );
+  }
   const form = await req.formData();
   const file = form.get("file");
   const title = String(form.get("title") ?? "Untitled");

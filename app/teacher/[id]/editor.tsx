@@ -172,8 +172,19 @@ export default function Editor({ image, initialHotspots }: Props) {
       headers: { "Content-Type": "application/json" },
       ...init,
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(String(data.error ?? "Request failed"));
+    let data: Record<string, unknown> | null = null;
+    try {
+      data = await res.json();
+    } catch {
+      // non-JSON error page (e.g. a platform timeout) — fall through
+    }
+    if (!res.ok || !data) {
+      const hint =
+        res.status === 504
+          ? "The server timed out — AI analysis may exceed your hosting plan's function time limit."
+          : `Request failed (server error ${res.status})`;
+      throw new Error(String(data?.error ?? hint));
+    }
     return data;
   }
 
