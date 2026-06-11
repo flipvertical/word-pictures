@@ -1,27 +1,49 @@
-import { mkdir, writeFile, unlink } from "node:fs/promises";
+import { mkdir, writeFile, unlink, readFile } from "node:fs/promises";
 import path from "node:path";
+import { put, del } from "@vercel/blob";
 
-// v1 stores uploads on the local filesystem under public/uploads (gitignored).
-// For Vercel deployment this moves to Vercel Blob — see DESIGN.md.
+// Two drivers, selected by environment:
+// - Vercel Blob when BLOB_READ_WRITE_TOKEN is set (production) — filePath is an absolute URL
+// - local filesystem under public/uploads otherwise (dev) — filePath is /uploads/<name>
 
 const UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
+const useBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
-export async function saveUpload(buf: Buffer, ext: string): Promise<string> {
-  await mkdir(UPLOADS_DIR, { recursive: true });
+export async function saveUpload(
+  buf: Buffer,
+  ext: string,
+  mediaType: string,
+): Promise<string> {
   const name = `${crypto.randomUUID()}${ext}`;
+  if (useBlob()) {
+    const blob = await put(`uploads/${name}`, buf, {
+      access: "public",
+      contentType: mediaType,
+    });
+    return blob.url;
+  }
+  await mkdir(UPLOADS_DIR, { recursive: true });
   await writeFile(path.join(UPLOADS_DIR, name), buf);
   return `/uploads/${name}`;
 }
 
-export async function deleteUpload(publicPath: string): Promise<void> {
-  if (!publicPath.startsWith("/uploads/")) return;
+export async function deleteUpload(filePath: string): Promise<void> {
   try {
-    await unlink(path.join(UPLOADS_DIR, path.basename(publicPath)));
+    if (filePath.startsWith("http")) {
+      await del(filePath);
+    } else if (filePath.startsWith("/uploads/")) {
+      await unlink(path.join(UPLOADS_DIR, path.basename(filePath)));
+    }
   } catch {
     // already gone — fine
   }
 }
 
-export function uploadAbsolutePath(publicPath: string): string {
-  return path.join(UPLOADS_DIR, path.basename(publicPath));
+export async function readUpload(filePath: string): Promise<Buffer> {
+  if (filePath.startsWith("http")) {
+    const res = await fetch(filePath);
+    if (!res.ok) throw new Error(`Could not fetch stored image (${res.status})`);
+    return Buffer.from(await res.arrayBuffer());
+  }
+  return readFile(path.join(UPLOADS_DIR, path.basename(filePath)));
 }

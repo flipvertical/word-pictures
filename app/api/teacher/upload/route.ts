@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   }
 
   const buf = Buffer.from(await file.arrayBuffer());
-  const filePath = await saveUpload(buf, ext);
+  const filePath = await saveUpload(buf, ext, file.type);
   const id = crypto.randomUUID();
   await createImage({ id, title, filePath, mediaType: file.type, width, height });
   return NextResponse.json({ id });

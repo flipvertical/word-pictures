@@ -1,8 +1,7 @@
-import { readFile } from "node:fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import { isTeacher } from "@/lib/auth";
 import { getHotspots, getImage, replaceHotspots } from "@/lib/db";
-import { uploadAbsolutePath } from "@/lib/storage";
+import { readUpload } from "@/lib/storage";
 import { analyzeAuto, analyzeGuided } from "@/lib/analyze";
 
 export const maxDuration = 300;
@@ -33,7 +32,7 @@ export async function POST(
   }
 
   try {
-    const buf = await readFile(uploadAbsolutePath(image.filePath));
+    const buf = await readUpload(image.filePath);
     const input = {
       imageBase64: buf.toString("base64"),
       mediaType: image.mediaType,
