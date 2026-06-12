@@ -43,3 +43,6 @@ next-env.d.ts
 # word-pictures local data
 local.db
 public/uploads/
+
+# design handoff bundle (reference, not production code)
+design_handoff_word_card_system/

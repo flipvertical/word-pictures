@@ -7,31 +7,43 @@ export default async function Home() {
   const images = await listPublishedImages();
 
   return (
-    <main className="mx-auto max-w-4xl p-6">
-      <h1 className="text-2xl font-medium">Word Pictures</h1>
-      <p className="mt-1 text-neutral-500">
-        Tap a picture, explore it, and collect the words to write about it.
-      </p>
+    <main className="mx-auto w-full max-w-[980px] px-6 pb-[72px] pt-9">
+      <header className="flex flex-col gap-1.5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-green">
+          Word Pictures
+        </p>
+        <h1 className="font-serif text-[28px] font-medium text-ink">
+          Pictures to write about
+        </h1>
+        <p className="text-[13.5px] text-muted">
+          Tap a picture, explore it, and collect the words to write about it.
+        </p>
+      </header>
 
       {images.length === 0 ? (
-        <p className="mt-10 rounded-xl border border-dashed border-neutral-300 p-8 text-center text-neutral-500">
+        <p className="mt-10 rounded-[14px] border border-dashed border-border-stronger p-10 text-center text-[13.5px] text-muted">
           Nothing is open right now — check back when your teacher starts an activity.
         </p>
       ) : (
-        <ul className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <ul className="mt-7 grid grid-cols-1 gap-6 sm:grid-cols-2">
           {images.map((img) => (
             <li key={img.id}>
               <Link
                 href={`/i/${img.shareSlug}`}
-                className="group block overflow-hidden rounded-xl border border-neutral-200 transition-shadow hover:shadow-md"
+                className="group block rounded-[14px] bg-surface p-3 transition-shadow"
+                style={{
+                  boxShadow: "0 2px 6px rgba(20,28,24,0.12), 0 12px 28px rgba(20,28,24,0.14)",
+                }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img.filePath}
                   alt={img.title}
-                  className="aspect-[4/3] w-full object-cover transition-transform group-hover:scale-[1.02]"
+                  className="aspect-[4/3] w-full rounded-[10px] object-cover"
                 />
-                <p className="p-3 font-medium group-hover:underline">{img.title}</p>
+                <p className="px-1 pb-1 pt-3 font-serif text-[17px] text-ink group-hover:underline">
+                  {img.title}
+                </p>
               </Link>
             </li>
           ))}

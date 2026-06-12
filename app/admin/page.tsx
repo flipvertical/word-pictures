@@ -11,11 +11,17 @@ export default async function TeacherHome() {
   const images = await listImages();
 
   return (
-    <main className="mx-auto max-w-3xl p-6">
-      <h1 className="text-xl font-medium">Word Pictures — images</h1>
-      <p className="mt-1 text-sm text-neutral-500">
-        Upload a picture, let the AI propose hotspots and vocabulary, then review and publish.
-      </p>
+    <main className="mx-auto w-full max-w-3xl px-6 pb-[72px] pt-9">
+      <header className="flex flex-col gap-1.5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-green">
+          Word Pictures · Admin
+        </p>
+        <h1 className="font-serif text-[28px] font-medium text-ink">Images</h1>
+        <p className="text-[13.5px] text-muted">
+          Upload a picture, let the AI propose hotspots and vocabulary, then review and
+          publish.
+        </p>
+      </header>
 
       <div className="mt-6">
         <UploadForm />
@@ -25,41 +31,48 @@ export default async function TeacherHome() {
         {images.map((img) => (
           <li
             key={img.id}
-            className="flex items-center gap-4 rounded-xl border border-neutral-200 p-3"
+            className="flex items-center gap-4 rounded-[14px] border border-border-strong bg-surface p-3"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={img.filePath}
               alt={img.title}
-              className="h-16 w-24 rounded-lg object-cover"
+              className="h-16 w-24 rounded-[8px] object-cover"
             />
             <div className="min-w-0 flex-1">
-              <Link href={`/admin/${img.id}`} className="font-medium hover:underline">
+              <Link
+                href={`/admin/${img.id}`}
+                className="font-serif text-[16px] text-ink hover:underline"
+              >
                 {img.title}
               </Link>
-              <p className="text-sm text-neutral-500">
+              <p className="mt-0.5 text-[10.5px] font-semibold uppercase tracking-[0.13em]">
                 {img.status === "published" ? (
-                  <span className="text-green-700">
-                    Published —{" "}
-                    <a href={`/i/${img.shareSlug}`} className="underline" target="_blank">
+                  <span className="text-green">
+                    Published ·{" "}
+                    <a
+                      href={`/i/${img.shareSlug}`}
+                      className="underline"
+                      target="_blank"
+                    >
                       /i/{img.shareSlug}
                     </a>
                   </span>
                 ) : (
-                  "Draft"
+                  <span className="text-muted">Draft</span>
                 )}
               </p>
             </div>
             <Link
               href={`/admin/${img.id}`}
-              className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50"
+              className="rounded-full border border-border-stronger bg-ivory px-3.5 py-1.5 text-xs font-semibold text-ink hover:bg-page"
             >
               Edit
             </Link>
           </li>
         ))}
         {images.length === 0 && (
-          <li className="rounded-xl border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500">
+          <li className="rounded-[14px] border border-dashed border-border-stronger p-8 text-center text-[13.5px] text-muted">
             No images yet — upload one above to get started.
           </li>
         )}
